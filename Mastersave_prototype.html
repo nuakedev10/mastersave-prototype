@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MasterSave · Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: linear-gradient(140deg, #F5F5F7 0%, #EFEFF2 100%);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    -webkit-font-smoothing: antialiased;
+  }
+  
+  /* Phone frame */
+  .phone {
+    width: 390px;
+    height: 800px;
+    background: #0A0A0A;
+    border-radius: 48px;
+    padding: 12px;
+    box-shadow:
+      0 0 0 2px #1a1a1a,
+      0 0 0 3px #2a2a2a,
+      0 40px 80px -30px rgba(0,0,0,0.45),
+      0 25px 50px -25px rgba(0,0,0,0.35);
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .phone::before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 110px;
+    height: 26px;
+    background: #0A0A0A;
+    border-radius: 0 0 18px 18px;
+    z-index: 10;
+  }
+  
+  .screen {
+    width: 100%;
+    height: 100%;
+    background: #FFFFFF;
+    border-radius: 36px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  /* Header */
+  .header {
+    padding: 46px 24px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-weight: 800;
+    font-size: 17px;
+    color: #0A0A0A;
+    letter-spacing: -0.03em;
+  }
+  
+  .logo-mark {
+    width: 14px;
+    height: 14px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .logo-mark::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: #DC2626;
+    border-radius: 4px;
+  }
+  
+  .logo-mark::after {
+    content: '';
+    position: absolute;
+    top: -3px;
+    right: -3px;
+    width: 8px;
+    height: 8px;
+    background: #F59E0B;
+    border-radius: 50%;
+  }
+  
+  .avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #DC2626 0%, #F59E0B 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  
+  .avatar:hover {
+    transform: scale(1.08);
+  }
+  
+  /* Hero */
+  .hero {
+    padding: 4px 24px 20px;
+    flex-shrink: 0;
+  }
+  
+  .hero-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #9CA3AF;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  
+  .hero-amount {
+    font-size: 42px;
+    font-weight: 900;
+    color: #0A0A0A;
+    letter-spacing: -0.045em;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  
+  .hero-amount .currency {
+    font-size: 19px;
+    font-weight: 700;
+    color: #9CA3AF;
+    letter-spacing: -0.01em;
+  }
+  
+  .hero-sub {
+    font-size: 13px;
+    color: #6B7280;
+    font-weight: 500;
+    margin-top: 10px;
+    letter-spacing: -0.01em;
+  }
+  
+  .split-bar {
+    display: flex;
+    gap: 3px;
+    height: 6px;
+    margin-top: 18px;
+    border-radius: 3px;
+    overflow: hidden;
+  }
+  
+  .split-bar-seg {
+    height: 100%;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transform-origin: center;
+  }
+  
+  .split-bar-seg:hover {
+    transform: scaleY(2);
+  }
+  
+  .seg-spend { background: #DC2626; }
+  .seg-save { background: #F59E0B; }
+  .seg-grow { background: #0A0A0A; }
+  
+  /* Tabs */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    padding: 0 24px 20px;
+    flex-shrink: 0;
+  }
+  
+  .tab {
+    flex: 1;
+    padding: 12px 10px;
+    border-radius: 14px;
+    border: none;
+    background: #F4F4F5;
+    color: #6B7280;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    position: relative;
+  }
+  
+  .tab-name {
+    font-size: 13.5px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  
+  .tab-amt {
+    font-size: 10.5px;
+    font-weight: 700;
+    opacity: 0.75;
+    letter-spacing: -0.005em;
+  }
+  
+  .tab:hover:not(.active) {
+    background: #E8E8EA;
+    color: #0A0A0A;
+  }
+  
+  .tab.active {
+    background: #DC2626;
+    color: #fff;
+    box-shadow: 0 10px 24px -8px rgba(220, 38, 38, 0.55);
+    transform: translateY(-2px);
+  }
+  
+  .tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #DC2626;
+    animation: dotIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+  
+  @keyframes dotIn {
+    to { transform: translateX(-50%) scale(1); }
+  }
+  
+  /* Content */
+  .content {
+    flex: 1;
+    padding: 4px 24px 32px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+  
+  .content::-webkit-scrollbar { width: 0; }
+  
+  .pane {
+    display: none;
+  }
+  
+  .pane.active {
+    display: block;
+    animation: fadeSlide 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes fadeSlide {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Big amount block */
+  .big-amount {
+    background: #FAFAFA;
+    border: 1px solid #F4F4F5;
+    border-radius: 22px;
+    padding: 22px;
+    margin-bottom: 14px;
+    transition: border-color 0.2s ease, background 0.2s ease;
+  }
+  
+  .big-amount:hover {
+    border-color: #E8E8EA;
+    background: #FFFFFF;
+  }
+  
+  .big-amount-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #9CA3AF;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  
+  .big-amount-value {
+    font-size: 34px;
+    font-weight: 900;
+    color: #0A0A0A;
+    letter-spacing: -0.04em;
+    line-height: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 5px;
+  }
+  
+  .big-amount-value .currency {
+    font-size: 16px;
+    font-weight: 700;
+    color: #9CA3AF;
+  }
+  
+  .big-amount-meta {
+    font-size: 12.5px;
+    color: #6B7280;
+    font-weight: 500;
+    margin-top: 12px;
+    letter-spacing: -0.005em;
+  }
+  
+  .progress {
+    height: 6px;
+    background: #E8E8EA;
+    border-radius: 3px;
+    overflow: hidden;
+    margin-top: 14px;
+  }
+  
+  .progress-fill {
+    height: 100%;
+    background: #DC2626;
+    border-radius: 3px;
+    animation: fillIn 1s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  @keyframes fillIn {
+    from { width: 0; }
+  }
+  
+  /* Cards */
+  .card {
+    background: #FAFAFA;
+    border: 1px solid #F4F4F5;
+    border-radius: 18px;
+    padding: 18px;
+    margin-bottom: 10px;
+    transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: default;
+  }
+  
+  .card:hover {
+    border-color: #E8E8EA;
+    background: #FFFFFF;
+    transform: translateY(-1px);
+  }
+  
+  .card-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .card-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0A0A0A;
+    letter-spacing: -0.015em;
+  }
+  
+  .card-amount {
+    font-size: 17px;
+    font-weight: 900;
+    color: #0A0A0A;
+    letter-spacing: -0.025em;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    white-space: nowrap;
+  }
+  
+  .card-amount .currency {
+    font-size: 11px;
+    font-weight: 700;
+    color: #9CA3AF;
+  }
+  
+  .card-desc {
+    font-size: 12px;
+    color: #6B7280;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: -0.005em;
+  }
+  
+  .card-tag {
+    display: inline-block;
+    font-size: 9.5px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 4px 9px;
+    border-radius: 7px;
+    margin-top: 10px;
+  }
+  
+  .tag-locked {
+    background: rgba(220, 38, 38, 0.1);
+    color: #DC2626;
+  }
+  
+  .tag-flex {
+    background: rgba(245, 158, 11, 0.16);
+    color: #B45309;
+  }
+  
+  /* Growth badge */
+  .growth-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    color: #059669;
+    background: rgba(5, 150, 105, 0.09);
+    padding: 6px 11px;
+    border-radius: 9px;
+    margin-top: 12px;
+    letter-spacing: -0.005em;
+  }
+  
+  .growth-badge::before {
+    content: '↗';
+    font-size: 14px;
+    font-weight: 800;
+  }
+  
+  /* Responsive */
+  @media (max-width: 480px) {
+    body { padding: 20px 10px; }
+    .phone {
+      width: 100%;
+      max-width: 390px;
+      height: auto;
+      min-height: 780px;
+      border-radius: 40px;
+    }
+    .hero-amount { font-size: 36px; }
+    .big-amount-value { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+  <div class="phone">
+    <div class="screen">
+      
+      <header class="header">
+        <div class="logo">
+          <span class="logo-mark"></span>
+          MasterSave
+        </div>
+        <div class="avatar">NT</div>
+      </header>
+      
+      <section class="hero">
+        <div class="hero-label">Total Deposited</div>
+        <div class="hero-amount">
+          <span class="currency">RWF</span>1,200,000
+        </div>
+        <div class="hero-sub">Split across Spend, Save, and Grow</div>
+        <div class="split-bar">
+          <div class="split-bar-seg seg-spend" style="width: 50%"></div>
+          <div class="split-bar-seg seg-save" style="width: 40%"></div>
+          <div class="split-bar-seg seg-grow" style="width: 10%"></div>
+        </div>
+      </section>
+      
+      <nav class="tabs">
+        <button class="tab active" data-tab="spend">
+          <span class="tab-name">Spend</span>
+          <span class="tab-amt">600K</span>
+        </button>
+        <button class="tab" data-tab="save">
+          <span class="tab-name">Save</span>
+          <span class="tab-amt">480K</span>
+        </button>
+        <button class="tab" data-tab="grow">
+          <span class="tab-name">Grow</span>
+          <span class="tab-amt">120K</span>
+        </button>
+      </nav>
+      
+      <div class="content">
+        
+        <div class="pane active" id="spend">
+          <div class="big-amount">
+            <div class="big-amount-label">This Week's Allowance</div>
+            <div class="big-amount-value">
+              <span class="currency">RWF</span>50,000
+            </div>
+            <div class="progress">
+              <div class="progress-fill" style="width: 53%"></div>
+            </div>
+            <div class="big-amount-meta">
+              RWF 23,500 left this week
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Week 5 of 12</span>
+              <span class="card-amount">
+                <span class="currency">RWF</span>26,500
+              </span>
+            </div>
+            <div class="card-desc">Used so far this week</div>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Weekly Budget</span>
+              <span class="card-amount">
+                <span class="currency">RWF</span>50,000
+              </span>
+            </div>
+            <div class="card-desc">Released every Monday at 9:00 AM</div>
+          </div>
+        </div>
+        
+        <div class="pane" id="save">
+          <div class="big-amount">
+            <div class="big-amount-label">Total Saved</div>
+            <div class="big-amount-value">
+              <span class="currency">RWF</span>480,000
+            </div>
+            <div class="big-amount-meta">Growing at 7% per year</div>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Goal Lock</span>
+              <span class="card-amount">
+                <span class="currency">RWF</span>360,000
+              </span>
+            </div>
+            <div class="card-desc">Locked until target is reached</div>
+            <span class="card-tag tag-locked">Locked</span>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Emergency Save</span>
+              <span class="card-amount">
+                <span class="currency">RWF</span>120,000
+              </span>
+            </div>
+            <div class="card-desc">Available for genuine emergencies</div>
+            <span class="card-tag tag-flex">Flexible</span>
+          </div>
+        </div>
+        
+        <div class="pane" id="grow">
+          <div class="big-amount">
+            <div class="big-amount-label">Total Growing</div>
+            <div class="big-amount-value">
+              <span class="currency">RWF</span>120,000
+            </div>
+            <div class="growth-badge">+RWF 8,400 projected in 12 months</div>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Investment Balance</span>
+              <span class="card-amount">
+                <span class="currency">RWF</span>120,000
+              </span>
+            </div>
+            <div class="card-desc">Held with a licensed partner</div>
+          </div>
+          
+          <div class="card">
+            <div class="card-row">
+              <span class="card-name">Annual Rate</span>
+              <span class="card-amount">7%</span>
+            </div>
+            <div class="card-desc">Compounding yearly on your balance</div>
+          </div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const tabs = document.querySelectorAll('.tab');
+    const panes = document.querySelectorAll('.pane');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const target = tab.dataset.tab;
+        tabs.forEach(t => t.classList.remove('active'));
+        panes.forEach(p => p.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(target).classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
